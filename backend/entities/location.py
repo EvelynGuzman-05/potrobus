@@ -8,6 +8,8 @@ class Location:
 
 
     def save(id_recorrido, lat, lng):
+        connection = None
+        cursor = None
         try:
             connection = get_connection()
             cursor = connection.cursor()
@@ -16,14 +18,45 @@ class Location:
                 VALUES (%s, %s, %s, NOW())
             """, (id_recorrido, lat, lng))
             connection.commit()
+            print(f"Posición guardada: {lat}, {lng}")
+            return True
         except Exception as ex:
-            print(ex)
+            print(f"Error guardando: {ex}")
+            return False
         finally:
-            cursor.close()
-            connection.close()
+            if cursor:
+                cursor.close()
+            if connection:
+                connection.close()
 
 
-    def get_latest(id_unidad):
+    def get_history(id_unidad):  # ← CORREGIR AQUÍ
+        connection = None
+        cursor = None
+        try:
+            connection = get_connection()
+            cursor = connection.cursor(dictionary=True)
+            cursor.execute("""
+                SELECT u.latitud AS lat, u.longitud AS lng, u.fecha_captura
+                FROM ubicacion u
+                JOIN recorrido r ON u.id_recorrido = r.id_recorrido
+                JOIN turno     t ON r.id_turno     = t.id_turno
+                WHERE t.id_unidad = %s
+                ORDER BY u.fecha_captura ASC
+            """, (id_unidad,))
+            return cursor.fetchall()
+        except Exception as ex:
+            print(f"Error historial: {ex}")
+            return []
+        finally:
+            if cursor:
+                cursor.close()
+            if connection:
+                connection.close()
+
+    def get_latest(id_unidad):  # ← Si existe, corrige igual
+        connection = None
+        cursor = None
         try:
             connection = get_connection()
             cursor = connection.cursor(dictionary=True)
@@ -36,32 +69,16 @@ class Location:
                 ORDER BY u.fecha_captura DESC
                 LIMIT 1
             """, (id_unidad,))
-            return cursor.fetchone()  # devuelve un diccionario con la última posición
+            return cursor.fetchone()
         except Exception as ex:
-            print(ex)
+            print(f"Error latest: {ex}")
+            return None
         finally:
-            cursor.close()
-            connection.close()
+            if cursor:
+                cursor.close()
+            if connection:
+                connection.close()
 
-
-    def get_history(id_unidad):
-        try:
-            connection = get_connection()
-            cursor = connection.cursor(dictionary=True)
-            cursor.execute("""
-                SELECT u.latitud AS lat, u.longitud AS lng, u.fecha_captura
-                FROM ubicacion u
-                JOIN recorrido r ON u.id_recorrido = r.id_recorrido
-                JOIN turno     t ON r.id_turno     = t.id_turno
-                WHERE t.id_unidad = %s
-                ORDER BY u.fecha_captura ASC
-            """, (id_unidad,))
-            return cursor.fetchall()  # devuelve una lista de diccionarios con el historial
-        except Exception as ex:
-            print(ex)
-        finally:
-            cursor.close()
-            connection.close()
 
 
     def get_active_recorrido(id_unidad):
@@ -73,7 +90,7 @@ class Location:
                 FROM recorrido r
                 JOIN turno t ON r.id_turno = t.id_turno
                 WHERE t.id_unidad = %s
-                  AND r.estado = 'activo'
+                AND r.estado = 'activo'
                 ORDER BY r.hora_inicio DESC
                 LIMIT 1
             """, (id_unidad,))
@@ -81,5 +98,8 @@ class Location:
         except Exception as ex:
             print(ex)
         finally:
-            cursor.close()
-            connection.close()
+            if cursor:
+                cursor.close()
+            if connection:
+                connection.close()
+
