@@ -10,3 +10,7 @@
 
 ## API
 - `GET /api/health` → Estado del servidor
+- `GET /api/buses/<id_unidad>/positions` → Historial de posiciones de un camión
+- `GET /api/buses/<id_unidad>/positions/latest` → Última posición de un camión
+- `GET /api/buses/<id_unidad>/recorrido-activo` → Recorrido activo de un camión
+- `POST /api/gps/position` → Guardar posición 
