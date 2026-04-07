@@ -4,17 +4,43 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PotroBus - Admin</title>
+    
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" 
+          onerror="this.href='https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css'" />
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <h1>Panel Administrador PotroBus</h1>
-    <button id="btnCheck">Verificar Backend</button>
-    <button id="btnLatest">Última posición</button>
-    <button id="btnHistory">Historial</button>
-    <button id="btnSendGps">Enviar GPS</button>
+    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <button id="btnCheck">Health</button>
+        <button id="btnLatest">Última posición</button>
+        <button id="btnHistory">Historial</button>
+        <button id="btnSendGps">Enviar GPS</button>
+        <button id="btnMap">Mapa</button>
+    </div>
     
-    <pre id="output">Presione un botón para probar</pre>
+    <pre id="output">Listo para probar APIs...</pre>
+    
 
+    <div id="map" style="height: 500px; width: 100%; margin-top: 20px; border: 2px solid #007bff;"></div>
+
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" 
+            onerror="this.src='https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js'"></script>
+    
+
+    <script>
+        window.addEventListener('load', () => {
+            if (typeof L === 'undefined') {
+                document.getElementById('output').textContent = 'Leaflet FALLÓ carga. Revisa red.';
+                console.error('Leaflet NO disponible');
+            } else {
+                console.log('Leaflet cargado correctamente');
+            }
+        });
+    </script>
+    
     <script src="app.js"></script>
 </body>
 </html>

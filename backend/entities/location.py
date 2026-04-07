@@ -11,17 +11,23 @@ class Location:
         connection = None
         cursor = None
         try:
+            print(f"🔄 Intentando guardar: id={id_recorrido}, {lat}, {lng}")
             connection = get_connection()
             cursor = connection.cursor()
-            cursor.execute("""
+            
+            affected = cursor.execute("""
                 INSERT INTO ubicacion (id_recorrido, latitud, longitud, fecha_captura)
                 VALUES (%s, %s, %s, NOW())
             """, (id_recorrido, lat, lng))
+            
             connection.commit()
-            print(f"Posición guardada: {lat}, {lng}")
-            return True
+            print(f"✅ GUARDADO: {cursor.rowcount} filas afectadas")
+            return cursor.rowcount > 0  # True SOLO si insertó
+            
         except Exception as ex:
-            print(f"Error guardando: {ex}")
+            if connection:
+                connection.rollback()
+            print(f"❌ ERROR SQL: {ex}")
             return False
         finally:
             if cursor:
@@ -54,6 +60,7 @@ class Location:
             if connection:
                 connection.close()
 
+
     def get_latest(id_unidad):  # ← Si existe, corrige igual
         connection = None
         cursor = None
@@ -78,7 +85,6 @@ class Location:
                 cursor.close()
             if connection:
                 connection.close()
-
 
 
     def get_active_recorrido(id_unidad):
